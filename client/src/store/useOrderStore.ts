@@ -2,8 +2,9 @@ import { CheckoutSessionRequest, OrderState } from "@/types/orderType";
 import axios from "axios";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { config } from "@/config/env";
 
-const API_END_POINT: string = "http://localhost:5001/api/v1/orders"; // Update with your actual API endpoint
+const API_END_POINT: string = `${config.API_BASE_URL}/orders`;
 axios.defaults.withCredentials = true;
 
 export const useOrderStore = create<OrderState>()(persist((set => ({

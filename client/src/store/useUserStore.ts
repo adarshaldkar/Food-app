@@ -3,10 +3,11 @@ import {createJSONStorage,persist} from 'zustand/middleware';
 import axios from 'axios';
 import { LoginInputState, SignUpInputState } from '@/schema/userSchema';
 import { toast } from 'sonner';
+import { config } from '@/config/env';
 // import VerifyEmail from '@/auth/VerifyEmail';
 
 // API endpoint
-const API_END_POINT = 'http://localhost:5001/api/v1/users'  ;
+const API_END_POINT = `${config.API_BASE_URL}/users`;
 axios.defaults.withCredentials=true;
 type User = {
   fullName: string;

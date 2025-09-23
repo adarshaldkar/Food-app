@@ -3,8 +3,9 @@ import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { useRestaurantStore } from "./useRestaurantStore";
+import { config } from "@/config/env";
 
-const API_END_POINT = "http://localhost:5001/api/v1/menu"; // Update with your actual API endpoint
+const API_END_POINT = `${config.API_BASE_URL}/menu`;
 axios.defaults.withCredentials = true;
 
 type MenuState = {

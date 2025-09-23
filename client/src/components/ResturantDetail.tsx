@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Skeleton } from "./ui/skeleton";
 import { RestaurantSkeleton } from "./skeletons";
+import { config } from "@/config/env";
 
 const RestaurantDetail = () => {
   const params = useParams();
@@ -23,7 +24,7 @@ const RestaurantDetail = () => {
       
       // Test API connectivity first
       console.log('Testing restaurant API connectivity...');
-      fetch(`http://localhost:5001/api/v1/restaurant/${params.id}`)
+      fetch(`${config.API_BASE_URL}/restaurant/${params.id}`)
         .then(response => {
           console.log('Restaurant API response status:', response.status);
           return response.json();

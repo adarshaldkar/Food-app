@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { config } from "@/config/env";
 
 const BecomeOwner = () => {
   const { user } = useUserStore();
@@ -109,7 +110,7 @@ const BecomeOwner = () => {
     setVerifyEmailLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:5001/api/v1/users/send-email-verification-otp",
+        `${config.API_BASE_URL}/users/send-email-verification-otp`,
         { email: input.email },
         {
           headers: { "Content-Type": "application/json" },
@@ -202,7 +203,7 @@ const BecomeOwner = () => {
     setOtpLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:5001/api/v1/users/verify-email-otp",
+        `${config.API_BASE_URL}/users/verify-email-otp`,
         { email: input.email, otpCode },
         {
           headers: { "Content-Type": "application/json" },
@@ -223,7 +224,7 @@ const BecomeOwner = () => {
         // Now create the owner request after email verification
         try {
           const ownerRequestResponse = await axios.post(
-            "http://localhost:5001/api/v1/owner-request/create-request",
+            `${config.API_BASE_URL}/owner-request/create-request`,
             {
               name: input.name,
               email: input.email,
@@ -345,7 +346,7 @@ const BecomeOwner = () => {
                     type="button"
                     onClick={sendEmailVerification}
                     disabled={verifyEmailLoading || !input.email.trim()}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4"
+                    className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white dark:text-white px-4 transition-colors duration-200"
                   >
                     {verifyEmailLoading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -502,7 +503,7 @@ const BecomeOwner = () => {
                   setOtp(["", "", "", "", "", ""]);
                 }}
                 variant="outline"
-                className="flex-1"
+                className="flex-1 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
               >
                 Cancel
               </Button>
@@ -524,7 +525,7 @@ const BecomeOwner = () => {
                 onClick={sendEmailVerification}
                 variant="link"
                 disabled={verifyEmailLoading}
-                className="text-sm text-orange-600"
+                className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors duration-200"
               >
                 {verifyEmailLoading ? "Sending..." : "Resend OTP"}
               </Button>

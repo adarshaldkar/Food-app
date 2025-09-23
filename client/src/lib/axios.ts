@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { config } from '../config/env';
 
 // Create optimized axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:5001/api/v1',
+  baseURL: config.API_BASE_URL,
   timeout: 15000, // 15 seconds timeout
   withCredentials: true,
   headers: {

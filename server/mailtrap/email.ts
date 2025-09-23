@@ -4,9 +4,9 @@ import {
     sendWelcomeEmailProduction, 
     sendPasswordResetEmailProduction, 
     sendResetSuccessEmailProduction,
-    sendOwnerRequestVerificationEmailProduction,
-    sendOwnerOTPEmailProduction
-} from "./productionEmail";
+    sendOwnerOTPEmailProduction,
+    sendOwnerRequestVerificationEmailProduction 
+} from './productionEmail';
 import {generateResetSuccessEmailHtml, generatePasswordResetEmailHtml, generateWelcomeEmailHtml, htmlContent } from "./htmlEmail";
 
 // Environment flag to switch between Mailtrap (development) and Production email
@@ -18,7 +18,14 @@ export const sendOwnerOTPEmail = async (email: string, otpCode: string): Promise
     
     if (USE_PRODUCTION_EMAIL) {
         console.log('Using production email service (Gmail SMTP)');
-        return await sendOwnerOTPEmailProduction(email, otpCode);
+        try {
+            await sendOwnerOTPEmailProduction(email, otpCode);
+            console.log('Production email sent successfully');
+            return;
+        } catch (productionError: any) {
+            console.error('Production email failed, falling back to Mailtrap:', productionError.message);
+            // Continue to Mailtrap fallback below
+        }
     }
     
     // Mailtrap code for development/testing
@@ -475,7 +482,7 @@ export const sendOwnerApprovalEmail = async (email: string, name: string): Promi
                             </div>
                             
                             <p>Ready to get started? Click the button below to access your dashboard:</p>
-                            <a href="http://localhost:5173/admin/restaurant" class="button">Go to Dashboard</a>
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/restaurant" class="button">Go to Dashboard</a>
                             
                             <p><strong>Need help?</strong> Our support team is here to assist you in setting up your restaurant and getting the most out of our platform.</p>
                             
@@ -575,3 +582,6 @@ export const sendOwnerApprovalEmail = async (email: string, name: string): Promi
 //         throw new Error("Failed to send password reset success email");
 //     }
 // }
+
+
+

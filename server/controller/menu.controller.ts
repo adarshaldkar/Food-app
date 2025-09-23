@@ -16,19 +16,27 @@ export const addMenu = async (req: Request, res: Response):Promise<any> => {
         message: " file need to be  uploaded",
       });
     }
+    const restaurant = await Restaurant.findOne({ user: req.id });
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: "Restaurant not found. Please create a restaurant first.",
+      });
+    }
+    
     const imageURL = await uploadImageOnCloudinary(file as Express.Multer.File);
     const menu = new Menu({
       name,
       description,
       price,
       image: imageURL,
+      restaurant: restaurant._id, // Associate menu with restaurant
     });
     await menu.save();
-    const restaurant = await Restaurant.findOne({ user: req.id });
-    if (restaurant) {
-      (restaurant.menus as mongoose.Schema.Types.ObjectId[]).push(menu._id);
-      await restaurant.save();
-    }
+    
+    // Add menu to restaurant's menus array
+    (restaurant.menus as mongoose.Schema.Types.ObjectId[]).push(menu._id);
+    await restaurant.save();
     res.status(200).json({
       success: true,
       message: "Menu added successfully",
@@ -45,6 +53,16 @@ export const editMenu = async (req: Request, res: Response):Promise<any> => {
       const {id} = req.params;
       const {name,description,price}=req.body;
         const file = req.file;
+        
+        // First, find the restaurant that owns this menu to verify authorization
+        const restaurant = await Restaurant.findOne({ user: req.id, menus: id });
+        if (!restaurant) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to edit this menu"
+            });
+        }
+        
         const menu = await Menu.findById(id);
         if(!menu){
             return res.status(404).json({
@@ -77,6 +95,16 @@ export const editMenu = async (req: Request, res: Response):Promise<any> => {
 export const deleteMenu = async (req: Request, res: Response): Promise<any> => {
   try {
     const { id } = req.params;
+    
+    // First, verify that the user owns the restaurant that has this menu
+    const restaurant = await Restaurant.findOne({ user: req.id, menus: id });
+    if (!restaurant) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this menu"
+      });
+    }
+    
     const menu = await Menu.findById(id);
     if (!menu) {
       return res.status(404).json({
@@ -85,14 +113,11 @@ export const deleteMenu = async (req: Request, res: Response): Promise<any> => {
       });
     }
 
-    // Remove menu from restaurant's menus array
-    const restaurant = await Restaurant.findOne({ user: req.id });
-    if (restaurant) {
-      restaurant.menus = (restaurant.menus as mongoose.Schema.Types.ObjectId[]).filter(
-        (menuId) => menuId.toString() !== id
-      );
-      await restaurant.save();
-    }
+    // Remove menu from restaurant's menus array (using the restaurant we already found)
+    restaurant.menus = (restaurant.menus as mongoose.Schema.Types.ObjectId[]).filter(
+      (menuId) => menuId.toString() !== id
+    );
+    await restaurant.save();
 
     // Delete the menu
     await Menu.findByIdAndDelete(id);

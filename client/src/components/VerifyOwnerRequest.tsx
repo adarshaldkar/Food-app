@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
 import { useUserStore } from "@/store/useUserStore";
+import { config } from "@/config/env";
 
 const VerifyOwnerRequest = () => {
   const { token } = useParams<{ token: string }>();
@@ -16,7 +17,7 @@ const VerifyOwnerRequest = () => {
     const verifyToken = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5001/api/v1/owner-request/verify/${token}`,
+          `${config.API_BASE_URL}/owner-request/verify/${token}`,
           {
             withCredentials: true
           }

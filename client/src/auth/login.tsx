@@ -7,6 +7,7 @@ import { LoginInputState, userLoginSchema } from "@/schema/userSchema";
 import { Link, useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import { useUserStore } from "@/store/useUserStore";
+import { config } from "@/config/env";
 
 // type loginInputState = {
 //   email: string;
@@ -28,7 +29,7 @@ const Login = () => {
     const testAPIConnectivity = async () => {
       try {
         console.log('Testing API connectivity...');
-        const response = await fetch('http://localhost:5001/api/v1/orders/test');
+        const response = await fetch(`${config.API_BASE_URL}/orders/test`);
         const data = await response.json();
         console.log('API connectivity test result:', data);
       } catch (error) {

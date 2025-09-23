@@ -5,6 +5,7 @@ export interface IMenu{
     price:number,
     description:string,
     image:string,
+    restaurant:mongoose.Schema.Types.ObjectId,
 }
 export interface IMenuDocument extends IMenu,Document{
     createdAt:Date,
@@ -31,7 +32,11 @@ description:{
 image:{
     type:String,
     required:true
-}
-},{timestamps:true})
+},
+restaurant:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Restaurant",
+    required:true
+}},{timestamps:true})
 
 export const Menu=mongoose.model("Menu",menuSchema)

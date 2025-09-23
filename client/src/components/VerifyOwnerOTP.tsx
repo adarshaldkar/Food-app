@@ -6,6 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import axios from "axios";
 import { useUserStore } from "@/store/useUserStore";
+import { config } from "@/config/env";
 
 const VerifyOwnerOTP = () => {
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
@@ -101,7 +102,7 @@ const VerifyOwnerOTP = () => {
     
     try {
       const response = await axios.post(
-        "http://localhost:5001/api/v1/owner-request/verify-otp",
+        `${config.API_BASE_URL}/owner-request/verify-otp`,
         {
           email: email,
           otpCode: otpCode // Send with original case - FIXED
@@ -140,7 +141,7 @@ const VerifyOwnerOTP = () => {
     setResendLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:5001/api/v1/owner-request/resend-otp",
+        `${config.API_BASE_URL}/owner-request/resend-otp`,
         {
           email: email
         },

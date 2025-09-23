@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Loader2, User, Mail, Phone, Calendar, CheckCircle, XCircle, Clock } from "lucide-react";
+import { config } from "@/config/env";
 
 interface OwnerRequest {
   _id: string;
@@ -24,7 +25,7 @@ const OwnerRequests = () => {
   const fetchRequests = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5001/api/v1/owner-request",
+        `${config.API_BASE_URL}/owner-request`,
         {
           withCredentials: true,
         }
@@ -52,7 +53,7 @@ const OwnerRequests = () => {
     setActionLoading(requestId);
     try {
       const response = await axios.put(
-        `http://localhost:5001/api/v1/owner-request/${requestId}/status`,
+        `${config.API_BASE_URL}/owner-request/${requestId}/status`,
         { status, adminNote },
         {
           withCredentials: true,

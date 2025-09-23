@@ -4,8 +4,9 @@ import axios from "axios";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { config } from "@/config/env";
 
-const API_END_POINT = "http://localhost:5001/api/v1/restaurant"; // Update with your actual API endpoint
+const API_END_POINT = `${config.API_BASE_URL}/restaurant`;
 axios.defaults.withCredentials = true;
 
 

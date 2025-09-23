@@ -7,11 +7,10 @@ import cloudinary from "../utils/cloudinary";
 import { generateVerificationCode } from "../utils/generateVerificationCode";
 import { generateToken } from "../utils/generateToken";
 import {
-  sendPasswordResetEmail,
-  sendResetSuccessEmail,
   sendVerificationEmail,
   sendOwnerOTPEmail,
-} from "../mailtrap/email";
+  sendWelcomeEmail,
+} from "../utils/nodemailerService";
 
 export const signup = async (req: Request, res: Response): Promise<any> => {
   try {
@@ -155,7 +154,12 @@ export const verifyEmail = async (
     await user.save();
 
     // send welcome email
-    // await sendWelcomeEmail(user.email, user.fullname);
+    try {
+      await sendWelcomeEmail(user.email, user.fullName);
+    } catch (emailError) {
+      console.error('Error sending welcome email:', emailError);
+      // Don't fail the verification if email fails
+    }
 
     return res.status(200).json({
       success: true,
@@ -200,11 +204,11 @@ export const forgotPassword = async (
     user.resetPasswordTokenExpiresAt = resetTokenExpiresAt;
     await user.save();
 
-    // send email
-    await sendPasswordResetEmail(
-      user.email,
-      `${process.env.FRONTEND_URL}/reset-password/${resetToken}`
-    );
+    // send email - temporarily disabled, replace with nodemailer
+    // await sendPasswordResetEmail(
+    //   user.email,
+    //   `${process.env.FRONTEND_URL}/reset-password/${resetToken}`
+    // );
 
     return res.status(200).json({
       success: true,
@@ -239,8 +243,8 @@ export const resetPassword = async (
     user.resetPasswordTokenExpiresAt = undefined;
     await user.save();
 
-    // send success reset email
-    await sendResetSuccessEmail(user.email);
+    // send success reset email - temporarily disabled, replace with nodemailer
+    // await sendResetSuccessEmail(user.email);
 
     return res.status(200).json({
       success: true,
