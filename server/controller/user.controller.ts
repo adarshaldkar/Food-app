@@ -101,17 +101,21 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
     });
     generateToken(res, user);
 
-    // Skip email sending for now due to timeout issues
-    console.log("Skipping email sending due to timeout issues. OTP:", signupOTPCode);
+    try {
+      await sendSignupOTPEmail(email, signupOTPCode);
+      console.log("Signup OTP email sent successfully");
+    } catch (emailError) {
+      console.error("Error sending signup OTP email:", emailError);
+      // Don't fail signup if email fails
+    }
 
     const userWithoutPassword = await User.findOne({ email }).select(
       "-password"
     );
     return res.status(201).json({
       success: true,
-      message: "Account created successfully. Email sending temporarily disabled. Check server logs for OTP.",
+      message: "Account created successfully. Please check your email for the OTP to verify your account.",
       user: userWithoutPassword,
-      otp: signupOTPCode, // Temporary: include OTP in response for testing
     });
   } catch (error) {
     console.log('=== SIGNUP ERROR ===');

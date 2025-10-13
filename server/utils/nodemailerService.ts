@@ -15,6 +15,9 @@ const createTransporter = () => {
         tls: {
             rejectUnauthorized: false
         },
+        connectionTimeout: 60000, // 60 seconds
+        greetingTimeout: 30000, // 30 seconds
+        socketTimeout: 60000, // 60 seconds
         debug: true, // Enable debug logs
         logger: true // Enable logging
     });
