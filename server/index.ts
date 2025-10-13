@@ -75,6 +75,24 @@ app.get("/ip", async (req, res) => {
   }
 });
 
+// Debug endpoint to check environment variables
+app.get("/debug", (req, res) => {
+  res.json({
+    success: true,
+    environment: {
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT,
+      MONGO_URI: process.env.MONGO_URI ? 'SET' : 'NOT SET',
+      FRONTEND_URL: process.env.FRONTEND_URL || 'NOT SET',
+      JWT_SECRET_KEY: process.env.JWT_SECRET_KEY ? 'SET' : 'NOT SET',
+      USE_PRODUCTION_EMAIL: process.env.USE_PRODUCTION_EMAIL || 'NOT SET',
+      EMAIL_USER: process.env.EMAIL_USER ? 'SET' : 'NOT SET',
+      EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? 'SET' : 'NOT SET'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.use("/api/v1/users",userRoute);
 app.use("/api/v1/restaurant",restaurantRoute);
 app.use("/api/v1/menu",menuRoute);
