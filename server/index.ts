@@ -37,7 +37,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Health check endpoint for Render
+// Health check endpoint for Render - Updated CORS config
 app.get("/", (req, res) => {
   res.json({ 
     success: true, 
