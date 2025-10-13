@@ -10,6 +10,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=1024"
   
   - type: web
     name: food-app-client

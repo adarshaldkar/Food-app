@@ -15,7 +15,7 @@ dotenv.config();
 
 const app = express();
 
-const PORT = process.env.PORT || 5001;
+const PORT = parseInt(process.env.PORT || '5001', 10);
 app.use(express.json({limit:"10mb"}));
 app.use(express.urlencoded({ extended: true,limit:"10mb" }));
 app.use(cookieParser());
