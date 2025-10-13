@@ -31,13 +31,32 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Health check endpoint for Render
+app.get("/", (req, res) => {
+  res.json({ 
+    success: true, 
+    message: "Food App Server is running!",
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV || 'development'
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.json({ 
+    success: true, 
+    message: "Server is healthy",
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.use("/api/v1/users",userRoute);
 app.use("/api/v1/restaurant",restaurantRoute);
 app.use("/api/v1/menu",menuRoute);
 app.use("/api/v1/orders",orderRoute);
 app.use("/api/v1/owner-request", ownerRequestRoute);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   connectDB();
   console.log(`Server listening at port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
