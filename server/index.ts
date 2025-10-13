@@ -93,6 +93,56 @@ app.get("/debug", (req, res) => {
   });
 });
 
+// Database connection test endpoint
+app.get("/db-test", async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState === 1) {
+      // Test a simple database operation
+      const testQuery = await mongoose.connection.db.admin().ping();
+      res.json({
+        success: true,
+        message: "Database connected and responding",
+        connectionState: mongoose.connection.readyState,
+        dbName: mongoose.connection.name,
+        ping: testQuery
+      });
+    } else {
+      res.json({
+        success: false,
+        message: "Database not connected",
+        connectionState: mongoose.connection.readyState
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Database test failed",
+      error: error.message
+    });
+  }
+});
+
+// Simple signup test endpoint (without database)
+app.post("/signup-test", (req, res) => {
+  console.log('Signup test request:', req.body);
+  const { fullName, email, password, contact } = req.body;
+  
+  // Validate required fields
+  if (!fullName || !email || !password || !contact) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required"
+    });
+  }
+  
+  res.json({
+    success: true,
+    message: "Signup test successful - all fields validated",
+    data: { fullName, email, contact }
+  });
+});
+
 app.use("/api/v1/users",userRoute);
 app.use("/api/v1/restaurant",restaurantRoute);
 app.use("/api/v1/menu",menuRoute);
