@@ -118,7 +118,7 @@ app.get("/db-test", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Database test failed",
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

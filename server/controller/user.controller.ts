@@ -13,6 +13,60 @@ import {
   sendWelcomeEmail,
 } from "../utils/nodemailerService";
 
+// Test signup without email verification to debug database issues
+export const testSignup = async (req: Request, res: Response): Promise<any> => {
+  try {
+    console.log("Test signup request received:", req.body);
+    const { fullName, email, password, contact } = req.body;
+
+    // Validate required fields
+    if (!fullName || !email || !password || !contact) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exist with this email",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user = await User.create({
+      fullName,
+      email,
+      password: hashedPassword,
+      contact: contact,
+      isVerified: true, // Skip email verification for testing
+    });
+    generateToken(res, user);
+
+    const userWithoutPassword = await User.findOne({ email }).select(
+      "-password"
+    );
+    return res.status(201).json({
+      success: true,
+      message: "Test account created successfully without email verification.",
+      user: userWithoutPassword,
+    });
+  } catch (error) {
+    console.log('=== TEST SIGNUP ERROR ===');
+    console.log('Error details:', error);
+    console.log('Error message:', error instanceof Error ? error.message : 'Unknown error');
+    console.log('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    return res.status(500).json({ 
+      success: false,
+      message: "Internal server error",
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
 export const signup = async (req: Request, res: Response): Promise<any> => {
   try {
     console.log("Signup request received:", req.body);
@@ -47,20 +101,17 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
     });
     generateToken(res, user);
 
-    try {
-      await sendSignupOTPEmail(email, signupOTPCode);
-      console.log("Signup OTP email sent successfully");
-    } catch (emailError) {
-      console.error("Error sending signup OTP email:", emailError);
-    }
+    // Skip email sending for now due to timeout issues
+    console.log("Skipping email sending due to timeout issues. OTP:", signupOTPCode);
 
     const userWithoutPassword = await User.findOne({ email }).select(
       "-password"
     );
     return res.status(201).json({
       success: true,
-      message: "Account created successfully. Please check your email for the OTP to verify your account.",
+      message: "Account created successfully. Email sending temporarily disabled. Check server logs for OTP.",
       user: userWithoutPassword,
+      otp: signupOTPCode, // Temporary: include OTP in response for testing
     });
   } catch (error) {
     console.log('=== SIGNUP ERROR ===');

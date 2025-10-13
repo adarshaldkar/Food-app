@@ -71,15 +71,14 @@
 
 
 import express from "express";
-
-import { checkAuth, forgotPassword,signup, login, logout, resetPassword,  verifyEmail, verifySignupOTP, resendSignupOTP, sendEmailVerificationOTP, verifyEmailOTP } from "../controller/user.controller";
+import { checkAuth, forgotPassword, login, logout, resetPassword, signup, testSignup, updateProfile, verifyEmail, verifySignupOTP, resendSignupOTP, sendEmailVerificationOTP, verifyEmailOTP } from "../controller/user.controller";
 import { isAuthenticated } from "../middlewares/isAuthenticated";
-import { updateProfile } from "../controller/user.controller";
 
 const router = express.Router();
 
 router.route("/checkAuth").get(isAuthenticated, checkAuth);
 router.route("/signup").post(signup);
+router.route("/test-signup").post(testSignup); // Test endpoint without email verification
 router.route("/login").post(login);
 router.route("/logout").post(logout);
 router.route("/verify-email").post(verifyEmail);
