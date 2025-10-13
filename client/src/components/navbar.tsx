@@ -5,15 +5,7 @@ import {
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarTrigger,
-} from "@radix-ui/react-menubar";
-
-// Then use it like this:
+// Dropdown menu imports are above
 
 import {
   Moon,
@@ -54,6 +46,7 @@ const Navbar = () => {
   const { theme, setTheme } = useThemeStore();
   const { cart } = useCartStore();
 
+
   return (
     <>
       <div className="fixed top-0 left-0 right-0 w-full bg-white dark:bg-gray-900 z-50 shadow-sm dark:shadow-gray-800">
@@ -67,12 +60,14 @@ const Navbar = () => {
             <Link to="/" className=" text-black dark:text-white hover:text-orange-500 dark:hover:text-orange-400">
               Home
             </Link>
-            <Link to="/Profile" className="text-black dark:text-white hover:text-orange-500 dark:hover:text-orange-400">
+            <Link to="/profile" className="text-black dark:text-white hover:text-orange-500 dark:hover:text-orange-400">
               Profile
             </Link>
-            <Link to="/order/status" className="text-black dark:text-white hover:text-orange-500 dark:hover:text-orange-400">
-              Order
-            </Link>
+            {!user?.admin && (
+              <Link to="/orders" className="text-black dark:text-white hover:text-orange-500 dark:hover:text-orange-400">
+                Order
+              </Link>
+            )}
             {/* Only show "Become an Owner" if user is not an owner and hasn't submitted a request or was rejected */}
             {!user?.admin && (!user?.ownerRequestStatus || user?.ownerRequestStatus === 'none' || user?.ownerRequestStatus === 'rejected') && (
               <Link to="/become-owner" className="text-black dark:text-white hover:text-orange-500 dark:hover:text-orange-400">
@@ -86,35 +81,38 @@ const Navbar = () => {
               </Link>
             )}
             {user?.admin && (
-              <Menubar className="border-none bg-transparent">
-                <MenubarMenu>
-                  <MenubarTrigger className="cursor-pointer text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 px-4 py-2 rounded-md border border-gray-200 dark:border-gray-600 transition-colors">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="cursor-pointer text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 px-4 py-2 rounded-md border border-gray-200 dark:border-gray-600 transition-colors"
+                  >
                     Dashboard
-                  </MenubarTrigger>
-                  <MenubarContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg min-w-[200px]">
-                    <MenubarItem className="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm">
-                      <Link to="/admin/restaurant" className="text-gray-700 dark:text-gray-200 flex items-center w-full px-3 py-2">
-                        🏪 Restaurant
-                      </Link>
-                    </MenubarItem>
-                    <MenubarItem className="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm">
-                      <Link to="/admin/orders" className="text-gray-700 dark:text-gray-200 flex items-center w-full px-3 py-2">
-                        📦 Order
-                      </Link>
-                    </MenubarItem>
-                    <MenubarItem className="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm">
-                      <Link to="/admin/menu" className="text-gray-700 dark:text-gray-200 flex items-center w-full px-3 py-2">
-                        🍽️ Menu
-                      </Link>
-                    </MenubarItem>
-                    <MenubarItem className="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm">
-                      <Link to="/admin/owner-requests" className="text-gray-700 dark:text-gray-200 flex items-center w-full px-3 py-2">
-                        👤 Owner Requests
-                      </Link>
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-              </Menubar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg min-w-[200px]">
+                  <DropdownMenuItem className="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm" asChild>
+                    <Link to="/admin/restaurant" className="text-gray-700 dark:text-gray-200 flex items-center w-full px-3 py-2 cursor-pointer">
+                      Restaurant
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm" asChild>
+                    <Link to="/admin/orders" className="text-gray-700 dark:text-gray-200 flex items-center w-full px-3 py-2 cursor-pointer">
+                      Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm" asChild>
+                    <Link to="/admin/menu" className="text-gray-700 dark:text-gray-200 flex items-center w-full px-3 py-2 cursor-pointer">
+                      Menu
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm" asChild>
+                    <Link to="/admin/owner-requests" className="text-gray-700 dark:text-gray-200 flex items-center w-full px-3 py-2 cursor-pointer">
+                      Owner Requests
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
 
             <div className="flex items-center gap-4">
@@ -157,12 +155,12 @@ const Navbar = () => {
                   )}
                 </Link>
               )}
-              <div>
+              <Link to="/profile" className="cursor-pointer hover:opacity-80 transition-opacity">
                 <Avatar className="w-8 h-8 relative flex shrink-0 overflow-hidden rounded-full">
                   <AvatarImage src={user?.profilePicture !== "Update your profile picture" ? user?.profilePicture : undefined} />
                   <AvatarFallback>{user?.fullName?.charAt(0)?.toUpperCase() || "CN"}</AvatarFallback>
                 </Avatar>
-              </div>
+              </Link>
               <div className="mt-0">
                 {loading ? (
                   <Button
@@ -252,13 +250,15 @@ const MobileNavbar = () => {
             <span>Profile</span>
           </Link>
 
-          <Link
-            to="/order/status"
-            className="flex items-center gap-4 px-4 py-3 mx-2 cursor-pointer rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
-          >
-            <HandPlatter className="h-5 w-5" />
-            <span>Orders</span>
-          </Link>
+          {!user?.admin && (
+            <Link
+              to="/orders"
+              className="flex items-center gap-4 px-4 py-3 mx-2 cursor-pointer rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+            >
+              <HandPlatter className="h-5 w-5" />
+              <span>Orders</span>
+            </Link>
+          )}
           {/* Only show "Become an Owner" if user is not an owner and hasn't submitted a request or was rejected */}
           {!user?.admin && (!user?.ownerRequestStatus || user?.ownerRequestStatus === 'none' || user?.ownerRequestStatus === 'rejected') && (
             <Link

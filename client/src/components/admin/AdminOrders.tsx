@@ -5,7 +5,11 @@ import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Loader2, Eye, Clock, CheckCircle, XCircle, Truck, ChefHat } from 'lucide-react';
-import api from '@/lib/axios';
+import axios from 'axios';
+import { config } from '@/config/env';
+
+// Ensure axios has credentials enabled
+axios.defaults.withCredentials = true;
 import { toast } from 'sonner';
 
 interface OrderItem {
@@ -98,12 +102,11 @@ const AdminOrders: React.FC = () => {
   const fetchOrders = async () => {
     try {
       // Get orders for the restaurant owned by the authenticated admin user
-      const response = await api.get('/restaurant/order');
+      const response = await axios.get(`${config.API_BASE_URL}/restaurant/order`);
       if (response.data.success) {
         setOrders(response.data.orders);
       }
     } catch (error) {
-      console.error('Error fetching orders:', error);
       toast.error('Failed to fetch orders');
     } finally {
       setLoading(false);
@@ -113,7 +116,7 @@ const AdminOrders: React.FC = () => {
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     setUpdatingOrder(orderId);
     try {
-      const response = await api.put(`/restaurant/order/${orderId}/status`, { status: newStatus });
+      const response = await axios.put(`${config.API_BASE_URL}/restaurant/order/${orderId}/status`, { status: newStatus });
       if (response.data.success) {
         setOrders(orders.map(order => 
           order._id === orderId 
@@ -123,7 +126,6 @@ const AdminOrders: React.FC = () => {
         toast.success('Order status updated successfully');
       }
     } catch (error) {
-      console.error('Error updating order status:', error);
       toast.error('Failed to update order status');
     } finally {
       setUpdatingOrder(null);

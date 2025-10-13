@@ -37,9 +37,7 @@ api.interceptors.response.use(
     // Calculate request duration for monitoring
     if (response.config.metadata?.startTime) {
       const duration = new Date().getTime() - response.config.metadata.startTime;
-      if (duration > 5000) { // Log slow requests
-        console.warn(`Slow API request detected: ${response.config.url} took ${duration}ms`);
-      }
+      // Monitor slow requests silently
     }
     
     return response;
@@ -47,13 +45,12 @@ api.interceptors.response.use(
   (error) => {
     // Enhanced error handling
     if (error.code === 'ECONNABORTED') {
-      console.error('Request timeout - consider optimizing the API endpoint');
+      // Handle timeout silently
     }
     
     // Handle specific error cases
     if (error.response?.status === 429) {
-      console.warn('Rate limit exceeded - implementing exponential backoff');
-      // Could implement retry logic here
+      // Handle rate limit silently
     }
     
     return Promise.reject(error);

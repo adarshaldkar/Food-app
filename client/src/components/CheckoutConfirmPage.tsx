@@ -57,7 +57,7 @@ const CheckoutConfirmPage = ({
       };
       await createCheckoutSession(checkoutData);
     } catch (error) {
-      console.log(error);
+      // Handle error silently
     }
   };
 

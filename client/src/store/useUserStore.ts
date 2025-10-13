@@ -32,6 +32,8 @@ type UserState = {
   signup: (input:SignUpInputState) => Promise<void>;
   login: (input:LoginInputState) => Promise<void>;
   VerifyEmail: (verificationCode: string) => Promise<void>;
+  verifySignupOTP: (email: string, otpCode: string) => Promise<void>;
+  resendSignupOTP: (email: string) => Promise<void>;
   checkAuthentication: () => Promise<void>;
   logout: () => Promise<void>;
   forgotPassword: (email:string) => Promise<void>; 
@@ -70,7 +72,6 @@ export const useUserStore = create<UserState>()(persist((set)=>({
   },
   login:async(input:LoginInputState)=>{
     try {
-      console.log('Login attempt with:', { email: input.email, password: '***' });
       set({loading:true})
       
       const response = await axios.post(`${API_END_POINT}/login`, input, {
@@ -79,8 +80,6 @@ export const useUserStore = create<UserState>()(persist((set)=>({
         },
         timeout: 10000 // 10 second timeout
       });
-
-      console.log('Login response:', response.data);
       
       if(response.data.success){
         toast.success(response.data.message);
@@ -93,14 +92,6 @@ export const useUserStore = create<UserState>()(persist((set)=>({
      
     } 
     catch (error:any) {
-      console.log('=== LOGIN ERROR DEBUG ===');
-      console.log('Full error object:', error);
-      console.log('Error message:', error.message);
-      console.log('Error response:', error.response);
-      console.log('Error response data:', error.response?.data);
-      console.log('Error response status:', error.response?.status);
-      console.log('Error response headers:', error.response?.headers);
-      
       // Try to get the most specific error message
       let errorMessage = "Login failed. Please try again.";
       
@@ -111,8 +102,6 @@ export const useUserStore = create<UserState>()(persist((set)=>({
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
-      console.log('Final error message:', errorMessage);
       
       toast.error(errorMessage);
       set({loading:false});
@@ -137,6 +126,42 @@ export const useUserStore = create<UserState>()(persist((set)=>({
       
     }
 
+  },
+  verifySignupOTP: async (email: string, otpCode: string) => {
+    try {
+      set({ loading: true });
+      const response = await axios.post(`${API_END_POINT}/verify-signup-otp`, { email, otpCode }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.data.success) {
+        toast.success(response.data.message);
+        set({ loading: false, user: response.data.user, isAuthenticated: true });
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "OTP verification failed. Please try again.");
+      set({ loading: false });
+    }
+  },
+  resendSignupOTP: async (email: string) => {
+    try {
+      set({ loading: true });
+      const response = await axios.post(`${API_END_POINT}/resend-signup-otp`, { email }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.data.success) {
+        toast.success(response.data.message);
+        set({ loading: false });
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to resend OTP. Please try again.");
+      set({ loading: false });
+    }
   },
   checkAuthentication:async()=>{
 try {

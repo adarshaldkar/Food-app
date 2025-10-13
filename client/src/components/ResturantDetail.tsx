@@ -12,33 +12,23 @@ const RestaurantDetail = () => {
   const params = useParams();
   const { singleRestaurant, getSingleRestaurant, loading } = useRestaurantStore();
 
-  console.log('=== RESTAURANT DETAIL DEBUG ===');
-  console.log('Restaurant ID from URL:', params.id);
-  console.log('Single restaurant loaded:', singleRestaurant ? singleRestaurant.restaurantName : 'null');
-  console.log('Loading state:', loading);
+  // Remove debug logs for production
 
   useEffect(() => {
-    console.log('RestaurantDetail useEffect triggered with ID:', params.id);
     if (params.id) {
-      console.log('Calling getSingleRestaurant for ID:', params.id);
-      
       // Test API connectivity first
-      console.log('Testing restaurant API connectivity...');
       fetch(`${config.API_BASE_URL}/restaurant/${params.id}`)
         .then(response => {
-          console.log('Restaurant API response status:', response.status);
           return response.json();
         })
         .then(data => {
-          console.log('Restaurant API response data:', data);
+          // Handle response silently
         })
         .catch(error => {
-          console.error('Restaurant API connectivity test failed:', error);
+          // Handle error silently
         });
       
       getSingleRestaurant(params.id);
-    } else {
-      console.log('No restaurant ID found in URL params');
     }
   }, [params.id]);
 

@@ -8,6 +8,7 @@ import { config } from "@/config/env";
 
 const API_END_POINT = `${config.API_BASE_URL}/restaurant`;
 axios.defaults.withCredentials = true;
+axios.defaults.timeout = 15000;
 
 
 export const useRestaurantStore = create<RestaurantState>()(persist((set, get) => ({
@@ -37,17 +38,12 @@ export const useRestaurantStore = create<RestaurantState>()(persist((set, get) =
     getRestaurant: async () => {
         try {
             set({ loading: true });
-            console.log('Fetching restaurant from frontend...');
             const response = await axios.get(`${API_END_POINT}/`);
-            console.log('Restaurant API response:', response.data);
             if (response.data.success) {
-                console.log('Setting restaurant:', response.data.restaurant?.restaurantName);
                 set({ loading: false, restaurant: response.data.restaurant });
             }
         } catch (error: any) {
-            console.log('Error fetching restaurant:', error.response?.data || error.message);
             if (error.response?.status === 404) {
-                console.log('No restaurant found, setting to null');
                 set({ restaurant: null });
             }
             set({ loading: false });
@@ -93,7 +89,6 @@ export const useRestaurantStore = create<RestaurantState>()(persist((set, get) =
                 set({ loading: false, searchedRestaurant: { data: response.data.restaurants } });
             }
         } catch (error) {
-            console.error('Search error:', error);
             set({ loading: false });
         }
     },
@@ -105,7 +100,6 @@ export const useRestaurantStore = create<RestaurantState>()(persist((set, get) =
                 set({ loading: false, searchedRestaurant: { data: response.data.restaurants } });
             }
         } catch (error) {
-            console.error('Get all restaurants error:', error);
             set({ loading: false });
         }
     },
@@ -156,22 +150,14 @@ export const useRestaurantStore = create<RestaurantState>()(persist((set, get) =
     },
     getSingleRestaurant: async (restaurantId: string) => {
         try {
-            console.log('=== GET SINGLE RESTAURANT DEBUG ===');
-            console.log('Fetching restaurant ID:', restaurantId);
-            
             const response = await axios.get(`${API_END_POINT}/${restaurantId}`);
-            console.log('Restaurant API response:', response.data);
             
             if (response.data.success) {
-                console.log('Setting single restaurant:', response.data.restaurant?.restaurantName);
                 set({ singleRestaurant: response.data.restaurant })
             } else {
-                console.log('Restaurant API returned success=false:', response.data.message);
                 set({ singleRestaurant: null });
             }
         } catch (error: any) {
-            console.error('Error fetching single restaurant:', error);
-            console.error('Error details:', error.response?.data || error.message);
             set({ singleRestaurant: null });
         }
     },
@@ -182,7 +168,7 @@ export const useRestaurantStore = create<RestaurantState>()(persist((set, get) =
                 set({ restaurantOrder: response.data.orders });
             }
         } catch (error) {
-            console.log(error);
+            // Handle error silently
         }
     },
     updateRestaurantOrder: async (orderId: string, status: string) => {

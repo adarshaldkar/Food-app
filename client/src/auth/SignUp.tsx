@@ -79,7 +79,7 @@ import { useUserStore} from '../store/useUserStore';
           await signup(input);
           navigate("/verify-email");
         } catch (error) {
-          console.log(error);
+          // Handle error silently
         }
     }
 

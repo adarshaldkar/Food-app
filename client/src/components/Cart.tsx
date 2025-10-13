@@ -11,10 +11,8 @@ import {
   TableRow,
 } from "./ui/table";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import EnhancedCheckout from "./EnhancedCheckout";
 import { useCartStore } from "@/store/useCartStore";
-import { useUserStore } from "@/store/useUserStore";
 import { CartItem } from "@/types/cartType";
 import { CartSkeleton } from "./skeletons";
 
@@ -26,28 +24,9 @@ const Cart = () => {
   // Ensure cart is hydrated from localStorage
   useEffect(() => {
     setIsHydrated(true);
-    // Debug cart after hydration
-    setTimeout(() => {
-      debugCart();
-    }, 100);
-  }, [debugCart]);
+  }, []);
   
-  // Debug cart state on component load
-  console.log('=== CART COMPONENT DEBUG ===');
-  console.log('Is hydrated:', isHydrated);
-  console.log('Cart items count:', cart?.length || 0);
-  console.log('Full cart data:', cart);
-  
-  if (cart?.length > 0) {
-    cart.forEach((item, index) => {
-      console.log(`Cart item ${index}:`, {
-        name: item.name,
-        restaurantId: item.restaurantId,
-        restaurantName: item.restaurantName,
-        hasRestaurantInfo: !!(item.restaurantId && item.restaurantName)
-      });
-    });
-  }
+  // Remove debug logs for production
 
   let totalAmount = cart.reduce((acc, ele) => {
     return acc + ele.price * ele.quantity;
@@ -84,14 +63,60 @@ const Cart = () => {
   return (
     <div className="max-w-7xl mx-auto my-8 px-4 sm:px-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-          Shopping Cart
-        </h1>
-        <Button onClick={clearCart} variant="outline" className="flex items-center gap-2">
-          <Trash2 className="h-4 w-4" />
-          Clear All
-        </Button>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            Shopping Cart
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            {cart.length} item{cart.length !== 1 ? 's' : ''} in your cart
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            onClick={clearCart} 
+            variant="destructive" 
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white"
+          >
+            <Trash2 className="h-4 w-4" />
+            Clear All Items
+          </Button>
+        </div>
       </div>
+
+      {/* Old Items Warning Banner */}
+      {cart.some(item => !item.restaurantId || !item.restaurantName || item.name === 'a2B' || item.name === 'jalebi') && (
+        <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="text-yellow-600 dark:text-yellow-400">
+                ⚠️
+              </div>
+              <div>
+                <h3 className="font-medium text-yellow-800 dark:text-yellow-200">
+                  Old items detected
+                </h3>
+                <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                  Some items in your cart may be from testing or no longer available. Consider removing them.
+                </p>
+              </div>
+            </div>
+            <Button 
+              onClick={() => {
+                // Remove specific old test items
+                const itemsToRemove = cart.filter(item => 
+                  item.name === 'a2B' || item.name === 'jalebi' || !item.restaurantId
+                );
+                itemsToRemove.forEach(item => removeFromTheCart(item._id));
+              }}
+              variant="outline" 
+              size="sm"
+              className="border-yellow-300 text-yellow-700 hover:bg-yellow-100 dark:border-yellow-600 dark:text-yellow-300 dark:hover:bg-yellow-900/30"
+            >
+              Remove Old Items
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Desktop Table View */}
       <div className="hidden lg:block bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">

@@ -20,6 +20,8 @@ export interface IUser{
     emailVerificationOTP?:String,
     emailVerificationOTPExpiresAt?:Date,
     emailVerified?:Boolean,
+    signupOTP?:String,
+    signupOTPExpiresAt?:Date,
 }
 
 export interface IUserDocument extends IUser,Document{
@@ -94,6 +96,14 @@ const userSchema= new mongoose.Schema<IUserDocument>({
     emailVerified:{
         type:Boolean,
         default:false
+    },
+    signupOTP:{
+        type: String,
+        required: false
+    },
+    signupOTPExpiresAt:{
+        type: Date,
+        required: false
     },
 
 },{timestamps:true})

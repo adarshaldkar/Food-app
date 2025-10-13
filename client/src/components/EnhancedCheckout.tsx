@@ -609,10 +609,6 @@ const EnhancedCheckout: React.FC<EnhancedCheckoutProps> = React.memo(({ open, se
     // Always prioritize cart items for restaurant info since they contain the actual order context
     const firstCartItem = cart[0];
     if (firstCartItem?.restaurantId && firstCartItem?.restaurantName) {
-      console.log('Using restaurant info from cart:', {
-        id: firstCartItem.restaurantId,
-        name: firstCartItem.restaurantName
-      });
       return {
         _id: firstCartItem.restaurantId,
         restaurantName: firstCartItem.restaurantName,
@@ -629,33 +625,13 @@ const EnhancedCheckout: React.FC<EnhancedCheckoutProps> = React.memo(({ open, se
     
     // Fallback to store restaurant if cart doesn't have restaurant info
     if (storeRestaurant) {
-      console.log('Using restaurant info from store:', {
-        id: storeRestaurant._id,
-        name: storeRestaurant.restaurantName
-      });
       return storeRestaurant;
     }
     
-    console.log('No restaurant information available');
     return null;
   }, [cart, storeRestaurant]);
   
-  console.log('EnhancedCheckout Debug:');
-  console.log('- Open:', open);
-  console.log('- Cart items:', cart?.length || 0);
-  console.log('- Cart contents:', cart);
-  console.log('- User loaded:', !!user);
-  console.log('- Store restaurant loaded:', !!storeRestaurant);
-  console.log('- Restaurant from cart:', restaurant ? `${restaurant.restaurantName} (${restaurant._id})` : 'null');
-  console.log('- Final restaurant loaded:', !!restaurant);
-  
-  // Log first cart item restaurant info
-  if (cart?.length > 0) {
-    console.log('- First cart item restaurant info:', {
-      restaurantId: cart[0].restaurantId,
-      restaurantName: cart[0].restaurantName
-    });
-  }
+  // Remove debug logs for production
   
   // Use optimized payment hook
   const { 
@@ -677,28 +653,21 @@ const EnhancedCheckout: React.FC<EnhancedCheckoutProps> = React.memo(({ open, se
     let timeoutId: NodeJS.Timeout;
     
     if (open) {
-      console.log('Payment dialog opened, checking if data is ready...');
-      
       // Ensure we have all required data before creating payment intent
       if (!cart?.length) {
-        console.log('Cart is empty, not creating payment intent');
         return;
       }
       
       if (!user) {
-        console.log('User not loaded, not creating payment intent');
         return;
       }
       
       if (!restaurant) {
-        console.log('Restaurant not loaded, not creating payment intent');
         return;
       }
       
-      console.log('All data ready, creating payment intent with delay...');
       // Add small delay to prevent too eager API calls
       timeoutId = setTimeout(() => {
-        console.log('Calling createPaymentIntent...');
         createPaymentIntent();
       }, 150); // Slightly increased delay for better UX
     } else {

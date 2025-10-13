@@ -14,6 +14,7 @@ import Restaurant from "./admin/Resturant";
 import AddMenu from "./admin/AddMenu";
 import Orders from "./admin/Orders";
 import Success from "./components/Success";
+import UserOrders from "./components/UserOrders";
 import OrderStatus from "./components/OrderStatus";
 import AdminOrders from "./components/admin/AdminOrders";
 import { useUserStore } from "./store/useUserStore";
@@ -104,25 +105,29 @@ const appRouter = createBrowserRouter([
         element: <NonAdminRoute><Cart /></NonAdminRoute>,
       },
       {
+        path: "/orders",
+        element: <UserOrders />,
+      },
+      {
         path: "/order/status",
         element: <OrderStatus />,
       },
       // admin services start from here
       {
         path: "/admin/restaurant",
-        element:<AdminRoute><Restaurant /></AdminRoute>,
+        element: <Restaurant />,
       },
       {
         path: "/admin/menu",
-        element:<AdminRoute><AddMenu /></AdminRoute>,
+        element: <AddMenu />,
       },
       {
         path: "/admin/orders",
-        element:<AdminRoute><AdminOrders /></AdminRoute>,
+        element: <AdminOrders />,
       },
       {
         path: "/admin/owner-requests",
-        element:<AdminRoute><OwnerRequests /></AdminRoute>,
+        element: <OwnerRequests />,
       },
       {
         path: "/become-owner",

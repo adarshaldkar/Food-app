@@ -7,22 +7,15 @@ import { createJSONStorage, persist } from "zustand/middleware";
 export const useCartStore = create<CartState>()(persist((set, get) => ({
     cart: [],
     addToCart: (item: MenuItem, restaurantId?: string, restaurantName?: string) => {
-        console.log('Cart Store: Adding item to cart with restaurant info:', {
-            itemName: item.name,
-            restaurantId,
-            restaurantName
-        });
         set((state) => {
             const exisitingItem = state.cart.find((cartItem) => cartItem._id === item._id);
             if (exisitingItem) {
-                console.log('Cart Store: Item already exists, incrementing quantity');
                 // already added in cart then inc qty
                 return {
                     cart: state?.cart.map((cartItem) => cartItem._id === item._id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
                     )
                 };
             } else {
-                console.log('Cart Store: Adding new item to cart');
                 // add cart with restaurant info
                 const newCartItem = { 
                     ...item, 
@@ -30,7 +23,6 @@ export const useCartStore = create<CartState>()(persist((set, get) => ({
                     restaurantId: restaurantId || '',
                     restaurantName: restaurantName || ''
                 };
-                console.log('Cart Store: New cart item:', newCartItem);
                 return {
                     cart: [...state.cart, newCartItem]
                 }
@@ -58,10 +50,6 @@ export const useCartStore = create<CartState>()(persist((set, get) => ({
     // Debug method to check cart state
     debugCart: () => {
         const state = get();
-        console.log('=== CART DEBUG ===');
-        console.log('Cart items count:', state.cart.length);
-        console.log('Cart contents:', state.cart);
-        console.log('LocalStorage cart:', localStorage.getItem('cart-name'));
         return state.cart;
     }
 }),

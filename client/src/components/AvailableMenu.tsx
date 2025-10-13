@@ -33,31 +33,19 @@ const AvailableMenu = ({ menus }: { menus: MenuItem[] }) => {
               {!user?.admin && (
                 <Button
                   onClick={() => {
-                    console.log('=== ADD TO CART DEBUG ===');
-                    console.log('Menu item:', menu.name);
-                    console.log('Single restaurant data:', singleRestaurant);
-                    console.log('Restaurant ID:', singleRestaurant?._id);
-                    console.log('Restaurant name:', singleRestaurant?.restaurantName);
-                    
                     if (!singleRestaurant) {
-                      console.error('CRITICAL: singleRestaurant is null/undefined');
                       // Try to get restaurant ID from URL
                       const urlParts = window.location.pathname.split('/');
                       const restaurantIdFromUrl = urlParts[urlParts.length - 1];
-                      console.log('Trying to use restaurant ID from URL:', restaurantIdFromUrl);
                       
                       if (restaurantIdFromUrl && restaurantIdFromUrl !== 'restaurant') {
                         addToCart(menu, restaurantIdFromUrl, 'Unknown Restaurant');
-                        console.log('Added to cart with URL restaurant ID');
                       } else {
-                        console.error('Cannot determine restaurant ID, not adding to cart');
                         return;
                       }
                     } else if (!singleRestaurant._id || !singleRestaurant.restaurantName) {
-                      console.error('CRITICAL: singleRestaurant exists but missing ID or name:', singleRestaurant);
                       return;
                     } else {
-                      console.log('Adding to cart with complete restaurant info');
                       addToCart(menu, singleRestaurant._id, singleRestaurant.restaurantName);
                     }
                     

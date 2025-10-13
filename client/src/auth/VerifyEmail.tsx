@@ -1,34 +1,65 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormEvent, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { FormEvent, useRef, useState, useEffect } from "react";
+import { Loader2, RotateCcw } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const VerifyEmail = () => {
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [resendTimer, setResendTimer] = useState(0);
+  const [userEmail, setUserEmail] = useState<string>("");
   const inputRef = useRef<any>([]);
+  const [searchParams] = useSearchParams();
 
-  const { loading, VerifyEmail } = useUserStore();
+  const { loading, VerifyEmail, verifySignupOTP, resendSignupOTP, user } = useUserStore();
   const navigate = useNavigate();
 
-  const handleChange = (index: number, value: string) => {
-    console.log('Input value:', value, 'Test result:', /^[a-zA-Z0-9]*$/.test(value));
+  // Get email from URL params or user store
+  useEffect(() => {
+    const emailFromParams = searchParams.get('email');
+    const emailFromUser = user?.email;
+    const email = emailFromParams || emailFromUser || "";
+    setUserEmail(email);
+  }, [searchParams, user]);
+
+  // Timer for resend functionality
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
+  // Resend OTP handler
+  const handleResendOTP = async () => {
+    if (!userEmail) {
+      return;
+    }
     
+    try {
+      await resendSignupOTP(userEmail);
+      setResendTimer(60); // 1 minute cooldown
+    } catch (error) {
+      // Handle error silently
+    }
+  };
+
+  const handleChange = (index: number, value: string) => {
     // Allow alphanumeric characters (letters and numbers) - FIXED
     if (/^[a-zA-Z0-9]?$/.test(value)) {
       const newOtp = [...otp];
       // Keep original case - FIXED (removed toUpperCase)
       newOtp[index] = value;
       setOtp(newOtp);
-      console.log('Updated OTP:', newOtp);
       
       // Move to next input if current input has a value and not the last input
       if (value && index < 5) {
         inputRef.current[index + 1]?.focus();
       }
-    } else {
-      console.log('Input rejected:', value);
     }
   };
 
@@ -55,15 +86,18 @@ const VerifyEmail = () => {
   const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const verificationCode: string = otp.join("");
-    console.log("Submitting verification code:", verificationCode);
     
     if (verificationCode.length !== 6) {
-      console.log("Verification code must be 6 characters");
       return;
     }
     
     try {
-      await VerifyEmail(verificationCode);
+      if (userEmail) {
+        await verifySignupOTP(userEmail, verificationCode);
+      } else {
+        // Fallback to legacy VerifyEmail if no email available
+        await VerifyEmail(verificationCode);
+      }
       // Check if user has owner request status to redirect appropriately
       const updatedUser = useUserStore.getState().user;
       if (updatedUser?.ownerRequestStatus && updatedUser.ownerRequestStatus !== 'none') {
@@ -72,7 +106,7 @@ const VerifyEmail = () => {
         navigate("/");
       }
     } catch (error) {
-      console.log(error);
+      // Handle error silently
     }
   };
 
@@ -148,6 +182,31 @@ const VerifyEmail = () => {
             <Button className="bg-orange hover:bg-hoverOrange mt-6 w-full">
               Verify
             </Button>
+          )}
+          
+          {/* Resend OTP Button */}
+          {userEmail && (
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Didn't receive the code?
+              </p>
+              {resendTimer > 0 ? (
+                <p className="text-sm text-gray-500 dark:text-gray-500">
+                  Resend OTP in {resendTimer}s
+                </p>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleResendOTP}
+                  disabled={loading}
+                  className="text-orange border-orange hover:bg-orange hover:text-white"
+                >
+                  <RotateCcw className="mr-2 w-4 h-4" />
+                  Resend OTP
+                </Button>
+              )}
+            </div>
           )}
         </form>
       </div>

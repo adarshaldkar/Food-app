@@ -9,6 +9,7 @@ import { generateToken } from "../utils/generateToken";
 import {
   sendVerificationEmail,
   sendOwnerOTPEmail,
+  sendSignupOTPEmail,
   sendWelcomeEmail,
 } from "../utils/nodemailerService";
 
@@ -34,23 +35,23 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const verificationToken = generateVerificationCode();
+    const signupOTPCode = generateVerificationCode();
 
     user = await User.create({
       fullName,
       email,
       password: hashedPassword,
       contact: contact, // Fixed field name to match model
-      verificationToken,
-      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
+      signupOTP: signupOTPCode,
+      signupOTPExpiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
     });
     generateToken(res, user);
 
     try {
-      await sendVerificationEmail(email, verificationToken);
-      console.log("Verification email sent successfully");
+      await sendSignupOTPEmail(email, signupOTPCode);
+      console.log("Signup OTP email sent successfully");
     } catch (emailError) {
-      console.error("Error sending verification email:", emailError);
+      console.error("Error sending signup OTP email:", emailError);
     }
 
     const userWithoutPassword = await User.findOne({ email }).select(
@@ -58,7 +59,7 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
     );
     return res.status(201).json({
       success: true,
-      message: "Account created successfully",
+      message: "Account created successfully. Please check your email for the OTP to verify your account.",
       user: userWithoutPassword,
     });
   } catch (error) {
@@ -136,7 +137,9 @@ export const verifyEmail = async (
 ): Promise<any> => {
   try {
     const { verificationCode } = req.body;
-    // console.log(verificationCode);
+    
+    console.log('Legacy email verification request (for old verification tokens)');
+    
     const user = await User.findOne({
       verificationToken: verificationCode,
       verificationTokenExpiresAt: { $gt: Date.now() },
@@ -145,9 +148,10 @@ export const verifyEmail = async (
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Invalid or expired verification token",
+        message: "Invalid or expired verification token. Please use the new OTP verification system.",
       });
     }
+    
     user.isVerified = true;
     user.verificationToken = undefined;
     user.verificationTokenExpiresAt = undefined;
@@ -163,7 +167,7 @@ export const verifyEmail = async (
 
     return res.status(200).json({
       success: true,
-      message: "Email verified successfully.",
+      message: "Email verified successfully (legacy method).",
       user,
     });
   } catch (error) {
@@ -397,6 +401,147 @@ export const sendEmailVerificationOTP = async (
     });
   } catch (error) {
     console.error("Error in sendEmailVerificationOTP:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+
+export const verifySignupOTP = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { email, otpCode } = req.body;
+    
+    console.log('Received signup OTP verification request for:', email, 'with OTP:', otpCode);
+    
+    // Validate required fields
+    if (!email || !otpCode) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and OTP code are required"
+      });
+    }
+    
+    // Find user with this email and signup OTP
+    const user = await User.findOne({
+      email: email,
+      signupOTP: otpCode
+    });
+    
+    console.log('Found user for signup OTP verification:', user ? 'Yes' : 'No');
+    
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP code"
+      });
+    }
+    
+    // Check if the OTP has expired
+    if (user.signupOTPExpiresAt && user.signupOTPExpiresAt < new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired. Please request a new one."
+      });
+    }
+    
+    // Mark user account as verified
+    user.signupOTP = undefined;
+    user.signupOTPExpiresAt = undefined;
+    user.isVerified = true;
+    await user.save();
+    
+    console.log('Signup verification successful for:', email);
+    
+    // Send welcome email after successful verification
+    try {
+      await sendWelcomeEmail(user.email, user.fullName);
+      console.log('Welcome email sent after signup verification');
+    } catch (emailError) {
+      console.error('Error sending welcome email:', emailError);
+      // Don't fail the verification if email fails
+    }
+    
+    return res.status(200).json({
+      success: true,
+      message: "Account verified successfully! Welcome to Food App!",
+      user: await User.findOne({ email }).select("-password")
+    });
+  } catch (error) {
+    console.error("Error in verifySignupOTP:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+
+export const resendSignupOTP = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { email } = req.body;
+    
+    console.log('Resend signup OTP request for:', email);
+    
+    // Validate email
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required"
+      });
+    }
+    
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "No account found with this email address"
+      });
+    }
+    
+    // Check if user is already verified
+    if (user.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Account is already verified"
+      });
+    }
+    
+    // Generate new OTP
+    const signupOTPCode = generateVerificationCode();
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    
+    // Update user with new OTP
+    user.signupOTP = signupOTPCode;
+    user.signupOTPExpiresAt = otpExpiresAt;
+    await user.save();
+    
+    console.log('Generated new signup OTP:', signupOTPCode, 'for email:', email);
+    
+    // Send OTP email
+    try {
+      await sendSignupOTPEmail(email, signupOTPCode);
+      console.log('Resent signup OTP email successfully to:', email);
+    } catch (emailError) {
+      console.error("Error sending resend signup OTP email:", emailError);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send verification email. Please try again."
+      });
+    }
+    
+    return res.status(200).json({
+      success: true,
+      message: "New verification OTP sent to your email successfully"
+    });
+  } catch (error) {
+    console.error("Error in resendSignupOTP:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"

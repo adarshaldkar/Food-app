@@ -62,7 +62,7 @@ const Restaurant = () => {
         await createRestaurant(formData);
       }
     } catch (error) {
-      console.log(error);
+      // Handle error silently
     }
   };
 
@@ -83,7 +83,6 @@ const Restaurant = () => {
       };
       }
     fetchRestaurant();
-    console.log(restaurant);
     
   }, []);
 

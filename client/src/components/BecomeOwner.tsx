@@ -26,7 +26,7 @@ const BecomeOwner = () => {
   const [showOTPDialog, setShowOTPDialog] = useState(false);
   const [ownerRequestStatus, setOwnerRequestStatus] = useState(user?.ownerRequestStatus || 'none');
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
-  console.log('Current OTP state:', otp);
+  // OTP state management
   const [otpLoading, setOtpLoading] = useState(false);
   const [verifyEmailLoading, setVerifyEmailLoading] = useState(false);
 
@@ -120,19 +120,19 @@ const BecomeOwner = () => {
       
       if (response.data.success) {
         toast.success(response.data.message);
-        console.log('Showing OTP dialog');
+        // Show OTP dialog
         setShowOTPDialog(true);
         // Focus first input after a short delay
         setTimeout(() => {
           const firstInput = document.getElementById('otp-0');
           if (firstInput) {
             firstInput.focus();
-            console.log('Focused first OTP input');
+            // Focus first input
           }
         }, 100);
       }
     } catch (error: any) {
-      console.error("Error sending verification email:", error);
+      // Handle error silently
       toast.error(error.response?.data?.message || "Failed to send verification email");
     } finally {
       setVerifyEmailLoading(false);
@@ -147,7 +147,7 @@ const BecomeOwner = () => {
       newOtp[index] = value ;
       setOtp(newOtp);
       
-      console.log(`OTP changed at index ${index}: ${value}`);
+      // Handle OTP change
       
       // Auto-focus next input if a character was entered
       if (value !== "" && index < 5) {
@@ -155,7 +155,7 @@ const BecomeOwner = () => {
           const nextInput = document.getElementById(`otp-${index + 1}`);
           if (nextInput) {
             nextInput.focus();
-            console.log(`Focused next input: otp-${index + 1}`);
+            // Focus next input
           }
         }, 10);
       }
@@ -249,12 +249,10 @@ const BecomeOwner = () => {
             }, 1500);
           }
         } catch (requestError: any) {
-          console.error('Error creating owner request:', requestError);
           toast.error(requestError.response?.data?.message || 'Failed to create owner request');
         }
       }
     } catch (error: any) {
-      console.error("Error verifying OTP:", error);
       toast.error(error.response?.data?.message || "OTP verification failed");
     } finally {
       setOtpLoading(false);

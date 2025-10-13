@@ -28,12 +28,10 @@ const Login = () => {
   React.useEffect(() => {
     const testAPIConnectivity = async () => {
       try {
-        console.log('Testing API connectivity...');
         const response = await fetch(`${config.API_BASE_URL}/orders/test`);
         const data = await response.json();
-        console.log('API connectivity test result:', data);
       } catch (error) {
-        console.error('API connectivity test failed:', error);
+        // Handle API connectivity error silently
       }
     };
     
@@ -55,12 +53,10 @@ const Login = () => {
       return;
     }
     try {
-      console.log('Starting login attempt...');
       await login(input);
-      console.log('Login successful, navigating...');
       navigate("/");
     } catch (error) {
-      console.log('Login error caught in component:', error)
+      // Handle login error silently
     }
 
 

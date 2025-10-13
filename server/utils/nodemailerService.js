@@ -1,9 +1,23 @@
-import nodemailer from 'nodemailer';
-
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sendWelcomeEmail = exports.sendSignupOTPEmail = exports.sendOwnerOTPEmail = exports.sendVerificationEmail = void 0;
+const nodemailer_1 = __importDefault(require("nodemailer"));
 // Create transporter using Gmail SMTP with better configuration
 const createTransporter = () => {
     console.log('Creating Gmail transporter for:', process.env.EMAIL_USER);
-    return nodemailer.createTransport({
+    return nodemailer_1.default.createTransport({
         service: 'gmail',
         host: 'smtp.gmail.com',
         port: 587,
@@ -19,13 +33,11 @@ const createTransporter = () => {
         logger: true // Enable logging
     });
 };
-
 // Fallback transporter using a different service (Ethereal for testing)
-const createFallbackTransporter = async () => {
+const createFallbackTransporter = () => __awaiter(void 0, void 0, void 0, function* () {
     // Create test account for development if Gmail fails
-    const testAccount = await nodemailer.createTestAccount();
-    
-    return nodemailer.createTransport({
+    const testAccount = yield nodemailer_1.default.createTestAccount();
+    return nodemailer_1.default.createTransport({
         host: 'smtp.ethereal.email',
         port: 587,
         secure: false,
@@ -34,20 +46,18 @@ const createFallbackTransporter = async () => {
             pass: testAccount.pass,
         },
     });
-};
-
-export const sendVerificationEmail = async (email: string, verificationToken: string): Promise<void> => {
+});
+const sendVerificationEmail = (email, verificationToken) => __awaiter(void 0, void 0, void 0, function* () {
     // Use fallback by default for development reliability
     const useProduction = process.env.USE_PRODUCTION_EMAIL === 'true';
     let transporter;
-    
     if (useProduction) {
         transporter = createTransporter();
-    } else {
-        // Use reliable Ethereal for development
-        transporter = await createFallbackTransporter();
     }
-    
+    else {
+        // Use reliable Ethereal for development
+        transporter = yield createFallbackTransporter();
+    }
     const mailOptions = {
         from: {
             name: 'Food App',
@@ -126,54 +136,54 @@ export const sendVerificationEmail = async (email: string, verificationToken: st
             </html>
         `
     };
-    
     try {
         if (useProduction) {
             console.log('Attempting to send verification email via Gmail...');
-        } else {
+        }
+        else {
             console.log('Sending verification email via Ethereal (development mode)...');
         }
-        
-        const result = await transporter.sendMail(mailOptions);
-        
+        const result = yield transporter.sendMail(mailOptions);
         if (useProduction) {
             console.log('Gmail email sent successfully:', result.messageId);
-        } else {
-            console.log('Ethereal email sent successfully:', result.messageId);
-            console.log('Preview URL:', nodemailer.getTestMessageUrl(result));
         }
-    } catch (error: any) {
+        else {
+            console.log('Ethereal email sent successfully:', result.messageId);
+            console.log('Preview URL:', nodemailer_1.default.getTestMessageUrl(result));
+        }
+    }
+    catch (error) {
         console.error('Email sending failed:', error.message);
-        
         if (useProduction) {
             console.log('Gmail failed, trying fallback...');
             try {
-                transporter = await createFallbackTransporter();
-                const result = await transporter.sendMail(mailOptions);
+                transporter = yield createFallbackTransporter();
+                const result = yield transporter.sendMail(mailOptions);
                 console.log('Fallback email sent successfully:', result.messageId);
-                console.log('Preview URL:', nodemailer.getTestMessageUrl(result));
-            } catch (fallbackError: any) {
+                console.log('Preview URL:', nodemailer_1.default.getTestMessageUrl(result));
+            }
+            catch (fallbackError) {
                 console.error('Both Gmail and fallback failed:', fallbackError.message);
                 throw new Error(`Failed to send verification email: ${error.message}`);
             }
-        } else {
+        }
+        else {
             throw new Error(`Failed to send verification email: ${error.message}`);
         }
     }
-};
-
-export const sendOwnerOTPEmail = async (email: string, otpCode: string): Promise<void> => {
+});
+exports.sendVerificationEmail = sendVerificationEmail;
+const sendOwnerOTPEmail = (email, otpCode) => __awaiter(void 0, void 0, void 0, function* () {
     // Use same approach as verification email
     const useProduction = process.env.USE_PRODUCTION_EMAIL === 'true';
     let transporter;
-    
     if (useProduction) {
         transporter = createTransporter();
-    } else {
-        // Use reliable Ethereal for development
-        transporter = await createFallbackTransporter();
     }
-    
+    else {
+        // Use reliable Ethereal for development
+        transporter = yield createFallbackTransporter();
+    }
     const mailOptions = {
         from: {
             name: 'Food App',
@@ -253,54 +263,54 @@ export const sendOwnerOTPEmail = async (email: string, otpCode: string): Promise
             </html>
         `
     };
-    
     try {
         if (useProduction) {
             console.log('Attempting to send OTP email via Gmail...');
-        } else {
+        }
+        else {
             console.log('Sending OTP email via Ethereal (development mode)...');
         }
-        
-        const result = await transporter.sendMail(mailOptions);
-        
+        const result = yield transporter.sendMail(mailOptions);
         if (useProduction) {
             console.log('Gmail OTP email sent successfully:', result.messageId);
-        } else {
-            console.log('Ethereal OTP email sent successfully:', result.messageId);
-            console.log('Preview URL:', nodemailer.getTestMessageUrl(result));
         }
-    } catch (error: any) {
+        else {
+            console.log('Ethereal OTP email sent successfully:', result.messageId);
+            console.log('Preview URL:', nodemailer_1.default.getTestMessageUrl(result));
+        }
+    }
+    catch (error) {
         console.error('OTP email sending failed:', error.message);
-        
         if (useProduction) {
             console.log('Gmail failed, trying fallback...');
             try {
-                transporter = await createFallbackTransporter();
-                const result = await transporter.sendMail(mailOptions);
+                transporter = yield createFallbackTransporter();
+                const result = yield transporter.sendMail(mailOptions);
                 console.log('Fallback OTP email sent successfully:', result.messageId);
-                console.log('Preview URL:', nodemailer.getTestMessageUrl(result));
-            } catch (fallbackError: any) {
+                console.log('Preview URL:', nodemailer_1.default.getTestMessageUrl(result));
+            }
+            catch (fallbackError) {
                 console.error('Both Gmail and fallback failed:', fallbackError.message);
                 throw new Error(`Failed to send OTP email: ${error.message}`);
             }
-        } else {
+        }
+        else {
             throw new Error(`Failed to send OTP email: ${error.message}`);
         }
     }
-};
-
-export const sendSignupOTPEmail = async (email: string, otpCode: string): Promise<void> => {
+});
+exports.sendOwnerOTPEmail = sendOwnerOTPEmail;
+const sendSignupOTPEmail = (email, otpCode) => __awaiter(void 0, void 0, void 0, function* () {
     // Use same approach as verification email
     const useProduction = process.env.USE_PRODUCTION_EMAIL === 'true';
     let transporter;
-    
     if (useProduction) {
         transporter = createTransporter();
-    } else {
-        // Use reliable Ethereal for development
-        transporter = await createFallbackTransporter();
     }
-    
+    else {
+        // Use reliable Ethereal for development
+        transporter = yield createFallbackTransporter();
+    }
     const mailOptions = {
         from: {
             name: 'Food App',
@@ -380,45 +390,45 @@ export const sendSignupOTPEmail = async (email: string, otpCode: string): Promis
             </html>
         `
     };
-    
     try {
         if (useProduction) {
             console.log('Attempting to send signup OTP email via Gmail...');
-        } else {
+        }
+        else {
             console.log('Sending signup OTP email via Ethereal (development mode)...');
         }
-        
-        const result = await transporter.sendMail(mailOptions);
-        
+        const result = yield transporter.sendMail(mailOptions);
         if (useProduction) {
             console.log('Gmail signup OTP email sent successfully:', result.messageId);
-        } else {
-            console.log('Ethereal signup OTP email sent successfully:', result.messageId);
-            console.log('Preview URL:', nodemailer.getTestMessageUrl(result));
         }
-    } catch (error: any) {
+        else {
+            console.log('Ethereal signup OTP email sent successfully:', result.messageId);
+            console.log('Preview URL:', nodemailer_1.default.getTestMessageUrl(result));
+        }
+    }
+    catch (error) {
         console.error('Signup OTP email sending failed:', error.message);
-        
         if (useProduction) {
             console.log('Gmail failed, trying fallback...');
             try {
-                transporter = await createFallbackTransporter();
-                const result = await transporter.sendMail(mailOptions);
+                transporter = yield createFallbackTransporter();
+                const result = yield transporter.sendMail(mailOptions);
                 console.log('Fallback signup OTP email sent successfully:', result.messageId);
-                console.log('Preview URL:', nodemailer.getTestMessageUrl(result));
-            } catch (fallbackError: any) {
+                console.log('Preview URL:', nodemailer_1.default.getTestMessageUrl(result));
+            }
+            catch (fallbackError) {
                 console.error('Both Gmail and fallback failed:', fallbackError.message);
                 throw new Error(`Failed to send signup OTP email: ${error.message}`);
             }
-        } else {
+        }
+        else {
             throw new Error(`Failed to send signup OTP email: ${error.message}`);
         }
     }
-};
-
-export const sendWelcomeEmail = async (email: string, name: string): Promise<void> => {
+});
+exports.sendSignupOTPEmail = sendSignupOTPEmail;
+const sendWelcomeEmail = (email, name) => __awaiter(void 0, void 0, void 0, function* () {
     let transporter = createTransporter();
-    
     const mailOptions = {
         from: {
             name: 'Food App',
@@ -484,21 +494,23 @@ export const sendWelcomeEmail = async (email: string, name: string): Promise<voi
             </html>
         `
     };
-    
     try {
         console.log('Attempting to send welcome email via Gmail...');
-        const result = await transporter.sendMail(mailOptions);
+        const result = yield transporter.sendMail(mailOptions);
         console.log('Welcome email sent successfully:', result.messageId);
-    } catch (error: any) {
+    }
+    catch (error) {
         console.error('Gmail failed for welcome email, trying fallback...', error.message);
         try {
-            transporter = await createFallbackTransporter();
-            const result = await transporter.sendMail(mailOptions);
+            transporter = yield createFallbackTransporter();
+            const result = yield transporter.sendMail(mailOptions);
             console.log('Welcome email sent via fallback (Ethereal):', result.messageId);
-            console.log('Preview URL:', nodemailer.getTestMessageUrl(result));
-        } catch (fallbackError: any) {
+            console.log('Preview URL:', nodemailer_1.default.getTestMessageUrl(result));
+        }
+        catch (fallbackError) {
             console.error('Both Gmail and fallback failed:', fallbackError.message);
             throw new Error(`Failed to send welcome email: ${error.message}`);
         }
     }
-};
+});
+exports.sendWelcomeEmail = sendWelcomeEmail;

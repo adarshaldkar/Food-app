@@ -5,12 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { Loader2, CheckCircle, Clock, XCircle, Truck, ChefHat, AlertTriangle } from 'lucide-react';
-import api from '@/lib/axios';
+import axios from 'axios';
+import { config } from '@/config/env';
+
+// Ensure axios has credentials enabled
+axios.defaults.withCredentials = true;
 import { toast } from 'sonner';
 
 // Utility function to clean up delivery details display
 const cleanDeliveryDetail = (value: string, fieldName: string): string => {
   if (!value || value.trim() === '') {
+    // Provide default value for country if not set
+    if (fieldName.toLowerCase() === 'country') {
+      return 'India';
+    }
     return `[${fieldName} not provided]`;
   }
   
@@ -25,6 +33,10 @@ const cleanDeliveryDetail = (value: string, fieldName: string): string => {
   const isPlaceholder = placeholderPatterns.some(pattern => pattern.test(value.trim()));
   
   if (isPlaceholder) {
+    // Provide default value for country if placeholder
+    if (fieldName.toLowerCase() === 'country') {
+      return 'India';
+    }
     return `[${fieldName} not provided]`;
   }
   
@@ -41,6 +53,10 @@ const hasIncompleteDeliveryDetails = (details: DeliveryDetails): boolean => {
   
   return Object.entries(fields).some(([fieldName, value]) => {
     const cleaned = cleanDeliveryDetail(value, fieldName);
+    // Don't consider "India" (default country) as incomplete
+    if (cleaned === 'India' && fieldName === 'country') {
+      return false;
+    }
     return cleaned.startsWith('[') && cleaned.endsWith(']');
   });
 };
@@ -136,7 +152,7 @@ const OrderStatus: React.FC = () => {
       }
 
       try {
-        const response = await api.get(`/orders/${orderId}`);
+        const response = await axios.get(`${config.API_BASE_URL}/orders/${orderId}`);
         if (response.data.success) {
           setOrder(response.data.order);
         } else {
@@ -169,7 +185,7 @@ const OrderStatus: React.FC = () => {
 
     try {
       setCancelling(true);
-      const response = await api.put(`/orders/${order._id}/cancel`);
+      const response = await axios.put(`${config.API_BASE_URL}/orders/${order._id}/cancel`);
       
       if (response.data.success) {
         // Update the order status locally
@@ -235,15 +251,20 @@ const OrderStatus: React.FC = () => {
       <div className="max-w-2xl mx-auto">
         <Card className="shadow-lg">
           <CardHeader className="text-center pb-4">
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <StatusIcon className={`h-8 w-8 text-white p-1 rounded-full ${statusInfo.color}`} />
-              <CardTitle className="text-2xl">
-                Order Status: <span className={`text-white px-3 py-1 rounded-full text-sm ${statusInfo.color}`}>
-                  {statusInfo.label}
-                </span>
-              </CardTitle>
+            <div className="flex flex-col items-center space-y-4 mb-4">
+              <div className="flex items-center space-x-3">
+                <StatusIcon className={`h-10 w-10 text-white p-2 rounded-full ${statusInfo.color}`} />
+                <div className="text-left">
+                  <CardTitle className="text-2xl text-gray-900 dark:text-white mb-1">
+                    Order Status
+                  </CardTitle>
+                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white ${statusInfo.color}`}>
+                    {statusInfo.label}
+                  </div>
+                </div>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">{statusInfo.description}</p>
             </div>
-            <p className="text-gray-600 dark:text-gray-400">{statusInfo.description}</p>
           </CardHeader>
 
           <CardContent className="space-y-6">

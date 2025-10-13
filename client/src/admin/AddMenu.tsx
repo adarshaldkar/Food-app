@@ -65,7 +65,7 @@ const AddMenu = () => {
       setOpen(false); // Close dialog after successful creation
       setInput({ name: "", description: "", price: 0, image: undefined }); // Reset form
     } catch (error) {
-      console.log(error);
+      // Handle error silently
     }
   };
 
@@ -81,7 +81,7 @@ const AddMenu = () => {
         setDeleteDialogOpen(false);
         setMenuToDelete(null);
       } catch (error) {
-        console.log(error);
+        // Handle error silently
       }
     }
   };
@@ -93,8 +93,8 @@ const AddMenu = () => {
   return (
     <div className="max-w-6xl mx-auto my-10 px-4">
       {/* ALWAYS VISIBLE HEADER WITH ADD BUTTON */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 min-h-[80px] p-[45px] rounded-lg">
-        <h1 className="font-bold md:font-extrabold text-lg md:text-2xl mb-4 md:mb-0 text-black">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 min-h-[80px] p-[45px] rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <h1 className="font-bold md:font-extrabold text-lg md:text-2xl mb-4 md:mb-0 text-gray-900 dark:text-gray-100">
           Available Menus
         </h1>
         {/* FORCE VISIBLE BUTTON */}
@@ -201,19 +201,19 @@ const AddMenu = () => {
       {restaurant?.menus && restaurant.menus.length > 0 ? (
         restaurant.menus.map((menu: any, idx: number) => (
           <div key={idx} className="mt-6 space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center md:space-x-4 md:p-4 p-2 shadow-md rounded-lg border">
+            <div className="flex flex-col md:flex-row md:items-center md:space-x-4 md:p-4 p-2 shadow-md rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
               <img
                 src={menu?.image || '/placeholder-image.jpg'}
                 alt={menu?.name || 'Menu item'}
                 className="md:h-24 md:w-24 h-16 w-full object-cover rounded-lg"
               />
               <div className="flex-1">
-                <h1 className="text-lg font-semibold text-gray-800">
+                <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                   {menu?.name || 'Unnamed Item'}
                 </h1>
-                <p className="text-sm tex-gray-600 mt-1">{menu?.description || 'No description'}</p>
-                <h2 className="text-md font-semibold mt-2">
-                  Price: <span className="text-[#D19254]">₹{menu?.price || 0}</span>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{menu?.description || 'No description'}</p>
+                <h2 className="text-md font-semibold text-gray-800 dark:text-gray-200 mt-2">
+                  Price: <span className="text-[#D19254] dark:text-[#E5A86B]">₹{menu?.price || 0}</span>
                 </h2>
               </div>
               <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 mt-2">
@@ -247,10 +247,10 @@ const AddMenu = () => {
         ))
       ) : (
         <div className="mt-8 text-center py-12">
-          <div className="text-gray-500 text-lg mb-4">
+          <div className="text-gray-500 dark:text-gray-400 text-lg mb-4">
             No menu items found
           </div>
-          <p className="text-gray-400 mb-6">
+          <p className="text-gray-400 dark:text-gray-500 mb-6">
             Start building your menu by adding your first item!
           </p>
           <Button 
@@ -278,7 +278,7 @@ const AddMenu = () => {
             </DialogTitle>
             <DialogDescription className="pt-2">
               Are you sure you want to delete{" "}
-              <span className="font-semibold text-gray-900">
+              <span className="font-semibold text-gray-900 dark:text-gray-100">
                 "{menuToDelete?.name}"
               </span>?
               This action cannot be undone and will permanently remove this menu item from your restaurant.
