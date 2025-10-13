@@ -63,8 +63,15 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
       user: userWithoutPassword,
     });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal server error" });
+    console.log('=== SIGNUP ERROR ===');
+    console.log('Error details:', error);
+    console.log('Error message:', error instanceof Error ? error.message : 'Unknown error');
+    console.log('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    return res.status(500).json({ 
+      success: false,
+      message: "Internal server error",
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
