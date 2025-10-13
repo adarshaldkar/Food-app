@@ -49,6 +49,26 @@ app.get("/health", (req, res) => {
   });
 });
 
+// Temporary endpoint to check server IP
+app.get("/ip", async (req, res) => {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    const ipData = await response.json();
+    res.json({ 
+      success: true,
+      serverIP: ipData.ip,
+      timestamp: new Date().toISOString(),
+      message: "Add this IP to MongoDB Atlas whitelist"
+    });
+  } catch (error) {
+    res.json({ 
+      success: false, 
+      error: "Could not fetch IP",
+      fallbackIP: req.ip || req.connection.remoteAddress
+    });
+  }
+});
+
 app.use("/api/v1/users",userRoute);
 app.use("/api/v1/restaurant",restaurantRoute);
 app.use("/api/v1/menu",menuRoute);
