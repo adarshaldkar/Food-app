@@ -149,29 +149,31 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
       fullName,
       email,
       password: hashedPassword,
-      contact: contact, // Fixed field name to match model
+      contact: contact,
       signupOTP: signupOTPCode,
-      signupOTPExpiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+      signupOTPExpiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      isVerified: false, // Keep false until OTP verification
     });
+    
+    console.log("🔐 OTP Code generated and stored:", signupOTPCode);
+    console.log("📧 OTP expires at:", new Date(Date.now() + 10 * 60 * 1000));
+    
+    // Try to send email, but don't fail if it doesn't work
+    try {
+      await sendSignupOTPEmail(email, signupOTPCode);
+      console.log("📧 Signup OTP email sent successfully");
+    } catch (emailError) {
+      console.log("⚠️ Email sending failed:", emailError);
+      console.log("🔐 OTP for manual entry:", signupOTPCode);
+    }
+    
     generateToken(res, user);
 
-    // Temporarily skip email verification due to Render SMTP restrictions
-    console.log("⚠️ Email sending skipped due to hosting restrictions. Auto-verifying account.");
-    console.log("🔐 OTP (for manual verification if needed):", signupOTPCode);
-    
-    // Auto-verify the account to bypass email issues
-    user.isVerified = true;
-    user.signupOTP = undefined;
-    user.signupOTPExpiresAt = undefined;
-    await user.save();
-
-    const userWithoutPassword = await User.findOne({ email }).select(
-      "-password"
-    );
     return res.status(201).json({
       success: true,
-      message: "Account created and verified successfully! You can now use all features.",
-      user: userWithoutPassword,
+      message: "Account created! Please check your email for OTP verification.",
+      otpForDevelopment: process.env.NODE_ENV === 'development' ? signupOTPCode : undefined,
+      userId: user._id,
     });
   } catch (error) {
     console.log('=== SIGNUP ERROR ===');
