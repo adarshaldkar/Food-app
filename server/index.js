@@ -20,7 +20,13 @@ app.use(express_1.default.json({ limit: "10mb" }));
 app.use(express_1.default.urlencoded({ extended: true, limit: "10mb" }));
 app.use((0, cookie_parser_1.default)());
 const corsOptions = {
-    origin: [process.env.FRONTEND_URL || "http://localhost:5173", "http://localhost:5174", "http://localhost:3000"],
+    origin: [
+        process.env.FRONTEND_URL || "http://localhost:5173", 
+        "http://localhost:5174", 
+        "http://localhost:3000",
+        "https://food-app-83e41.web.app",
+        "https://food-app-83e41.firebaseapp.com"
+    ],
     credentials: true,
     optionsSuccessStatus: 200,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -28,6 +34,17 @@ const corsOptions = {
     exposedHeaders: ['set-cookie']
 };
 app.use((0, cors_1.default)(corsOptions));
+// Root endpoint
+app.get("/", (req, res) => {
+    res.json({
+        success: true,
+        message: "Food App Server is running!",
+        timestamp: new Date().toISOString(),
+        env: process.env.NODE_ENV || "development"
+    });
+});
+
+// API routes
 app.use("/api/v1/users", user_routes_1.default);
 app.use("/api/v1/restaurant", restaurant_routes_1.default);
 app.use("/api/v1/menu", menu_route_1.default);

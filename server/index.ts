@@ -26,7 +26,9 @@ const corsOptions = {
     "http://localhost:5174", 
     "http://localhost:3000",
     "https://food-app-clone-eight.vercel.app", // Production frontend URL
-    "https://food-app-alpha-rose.vercel.app" // Alternative frontend URL
+    "https://food-app-alpha-rose.vercel.app", // Alternative frontend URL
+    "https://food-app-83e41.web.app", // Firebase hosting URL
+    "https://food-app-83e41.firebaseapp.com" // Firebase app URL
   ],
   credentials: true,
   optionsSuccessStatus: 200,
