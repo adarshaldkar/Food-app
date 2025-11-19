@@ -1,6 +1,7 @@
 services:
   - type: web
     name: food-app-server
+    rootDir: server
     env: node
     region: oregon
     buildCommand: npm install && npm run build
@@ -15,6 +16,7 @@ services:
   
   - type: web
     name: food-app-client
+    rootDir: client
     env: static
     region: oregon
     buildCommand: npm install && npm run build
