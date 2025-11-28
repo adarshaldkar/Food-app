@@ -132,37 +132,6 @@ yarn build
 
 ## 📚 **Project Structure**
 
-src/
-├── admin/              # Admin and restaurant owner components
-│   ├── AddMenu.tsx     # Menu item management
-│   ├── EditMenu.tsx    # Edit menu items
-│   ├── Orders.tsx      # Restaurant order management
-│   ├── OwnerRequests.tsx # Admin owner request management
-│   └── Resturant.tsx   # Restaurant profile management
-├── auth/               # Authentication components
-│   ├── login.tsx       # User login
-│   ├── SignUp.tsx      # User registration
-│   ├── VerifyEmail.tsx # Email verification
-│   ├── ForgotPassword.tsx
-│   └── ResetPassword.tsx
-├── components/         # Main app components
-│   ├── HeroSection.tsx # Home page hero
-│   ├── SearchPage.tsx  # Restaurant search
-│   ├── Cart.tsx        # Shopping cart
-│   ├── EnhancedCheckout.tsx # Payment processing
-│   ├── OrderStatus.tsx # Order tracking
-│   ├── Profile.tsx     # User profile
-│   ├── admin/          # Admin-specific components
-│   ├── ui/             # Reusable UI components
-│   └── skeletons/      # Loading skeleton components
-├── hooks/              # Custom React hooks
-├── store/              # Zustand state management
-├── types/              # TypeScript type definitions
-├── utils/              # Utility functions
-└── layout/             # App layout components
-```
-
-
 ## 🔐 **User Roles & Permissions**
 
 ### **Regular User**
