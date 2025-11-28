@@ -132,8 +132,6 @@ yarn build
 
 ## 📚 **Project Structure**
 
-<<<<<<< HEAD
-```
 src/
 ├── admin/              # Admin and restaurant owner components
 │   ├── AddMenu.tsx     # Menu item management
@@ -163,9 +161,7 @@ src/
 ├── utils/              # Utility functions
 └── layout/             # App layout components
 ```
-=======
 
->>>>>>> 2395d5e26152a52bb311ac566fb9a5bbb9eb4954
 
 ## 🔐 **User Roles & Permissions**
 
